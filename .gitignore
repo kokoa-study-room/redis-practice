@@ -1,0 +1,130 @@
+# ============================================================
+# Redis Learning Project - .gitignore
+# ============================================================
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- Editors / IDE ----
+.idea/
+.vscode/
+*.swp
+*.swo
+*.iml
+.history/
+.cursorignore
+
+# ---- Logs ----
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ============================================================
+# Python (examples/python/)
+# ============================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# venv / virtualenv
+venv/
+.venv/
+env/
+.env/
+ENV/
+
+# uv / poetry caches
+.uv/
+.poetry/
+
+# pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
+
+# ============================================================
+# Node.js (examples/nodejs/)
+# ============================================================
+node_modules/
+.npm/
+.yarn/
+.pnp.*
+.pnpm-store/
+package-lock.json.bak
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+
+# ============================================================
+# Docker / Redis 데이터
+# ============================================================
+# Redis가 실제로 쓰는 데이터 파일은 학습 환경에서 매번 새로 생성되므로
+# 커밋하지 않는다. .gitkeep으로 디렉토리 자체만 유지.
+docker/redis/data/*
+!docker/redis/data/.gitkeep
+
+# Cluster 노드별 데이터
+docker/redis/cluster-data/
+docker/redis/sentinel-data/
+
+# RedisInsight / Prometheus / Grafana 영구 볼륨 (혹시 호스트에 마운트할 경우)
+docker/redisinsight/
+docker/prometheus/data/
+docker/grafana/data/
+
+# AOF / RDB 산출 파일 (실습 중 생성)
+*.aof
+*.rdb
+*.aof.manifest
+appendonlydir/
+dump.rdb
+
+# ============================================================
+# 환경 변수 / 비밀
+# ============================================================
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ============================================================
+# 임시 / 백업
+# ============================================================
+*.bak
+*.tmp
+*.swp
+*~
+.tmp/
+tmp/

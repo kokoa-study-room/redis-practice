@@ -1,0 +1,62 @@
+# ==============================================================================
+# Redis 학습 프로젝트 - Python 패키지 설정 (PEP 621)
+# ------------------------------------------------------------------------------
+# requirements.txt 와 동일한 의존성을 PEP 621 형식으로도 제공.
+# uv / poetry / pip-tools 등 어떤 도구를 써도 동작하도록 표준 메타데이터만 사용.
+#
+# 사용 예 (uv):
+#   uv venv
+#   source .venv/bin/activate
+#   uv pip install -e .
+#
+# 사용 예 (pip):
+#   pip install -e .
+# ==============================================================================
+
+[project]
+name = "redis-learning-examples"
+version = "0.1.0"
+description = "Redis 학습 프로젝트 Python 예제 모음"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Redis Learning Project" }
+]
+
+dependencies = [
+    # 검증: https://pypi.org/project/redis/7.4.0/ (2026-03-24)
+    "redis[hiredis]==7.4.0",
+    "anyio>=4.6.0,<5.0.0",
+    "psutil>=6.0.0",
+    "tabulate>=0.9.0",
+    "python-dotenv>=1.0.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "ruff>=0.7.0",
+    "mypy>=1.13.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ch_*"]
+
+# Ruff 설정 (학습 코드의 일관성 유지)
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM"]
+ignore = ["E501"]  # line-too-long은 line-length 옵션이 있으므로 중복 방지
+
+[tool.ruff.format]
+quote-style = "double"

@@ -1,0 +1,26 @@
+{
+  "name": "redis-learning-examples-nodejs",
+  "version": "0.1.0",
+  "description": "Redis 학습 프로젝트 Node.js 예제 (node-redis 5.12.0 기준)",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "test:ping": "node -e \"import('redis').then(async ({createClient}) => { const c = createClient({url: 'redis://127.0.0.1:6379'}); await c.connect(); console.log(await c.ping()); await c.close(); })\""
+  },
+  "dependencies": {
+    "redis": "^5.12.0",
+    "ioredis": "^5.10.1",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.4"
+  },
+  "_comments": {
+    "redis": "node-redis 5.12.0 (2026-04-14). Redis 8.6의 HOTKEYS, XADD IDMPAUTO/IDMP, XCFGSET, VRANGE 등 명시 지원 (5.11.0 릴리즈노트 참고). 출처: https://github.com/redis/node-redis/releases/tag/redis%405.12.0",
+    "ioredis": "ioredis 5.10.1 (2026-03-19). 비교 학습용으로 함께 설치. 출처: https://github.com/redis/ioredis/releases/tag/v5.10.1",
+    "dotenv": ".env 파일 로딩 (예제에서 REDIS_HOST 등 분리)"
+  }
+}

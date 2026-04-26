@@ -1,0 +1,114 @@
+# ==============================================================================
+# Redis 학습 - 모니터링 스택 (redis_exporter + Prometheus + Grafana)
+# ------------------------------------------------------------------------------
+# 구성:
+#   - redis-mon          : 학습용 Redis (포트 6390)         별도 인스턴스 (기본 6379와 충돌 방지)
+#   - redis-exporter     : Redis 메트릭을 Prometheus 형식으로 노출 (포트 9121)
+#   - prometheus         : 메트릭 수집·쿼리 (포트 9090)
+#   - grafana            : 대시보드 (포트 3000, admin/admin)
+#
+# 사용법:
+#   docker compose -f docker/docker-compose.monitoring.yml up -d
+#
+#   # Redis 부하 발생
+#   docker exec redis-mon redis-cli -p 6390 SET k 1
+#   docker exec redis-mon redis-cli -p 6390 DEBUG SLEEP 0.5
+#
+#   # 메트릭 직접 보기
+#   curl http://localhost:9121/metrics | head -30
+#
+#   # Grafana 접속
+#   open http://localhost:3000      # 초기 ID/PW: admin / admin
+#
+# 검증된 버전 (2026-04 기준):
+#   - oliver006/redis_exporter v1.82.0 (2026-03-08)
+#       https://github.com/oliver006/redis_exporter/releases/tag/v1.82.0
+#   - prom/prometheus latest
+#       https://hub.docker.com/r/prom/prometheus
+#   - grafana/grafana latest
+#       https://hub.docker.com/r/grafana/grafana
+#
+# 주의: 기본 docker-compose.yml 이 이미 떠 있어도 충돌 안 남 (포트/네트워크 분리).
+# ==============================================================================
+
+name: redis-monitoring-learning
+
+services:
+  # ---- 모니터링 대상 Redis (학습용 별도 인스턴스) ----
+  redis-mon:
+    image: redis:8.6-alpine
+    container_name: redis-mon
+    command: ["redis-server", "--port", "6390"]
+    ports:
+      - "127.0.0.1:6390:6390"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "6390", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks: [ mon-net ]
+    restart: unless-stopped
+
+  # ---- redis_exporter ----
+  # REDIS_ADDR 환경변수로 대상 Redis 지정. 컨테이너명으로 통신.
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.82.0
+    container_name: redis-exporter
+    environment:
+      REDIS_ADDR: "redis://redis-mon:6390"
+    ports:
+      - "127.0.0.1:9121:9121"
+    depends_on:
+      redis-mon: { condition: service_healthy }
+    networks: [ mon-net ]
+    restart: unless-stopped
+
+  # ---- Prometheus ----
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=7d"
+      - "--web.enable-lifecycle"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    depends_on:
+      - redis-exporter
+    networks: [ mon-net ]
+    restart: unless-stopped
+
+  # ---- Grafana ----
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      - prometheus
+    networks: [ mon-net ]
+    restart: unless-stopped
+
+networks:
+  mon-net:
+    driver: bridge
+
+volumes:
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local

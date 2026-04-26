@@ -1,0 +1,34 @@
+# ==============================================================================
+# Redis 학습 프로젝트 - Python 의존성
+# ------------------------------------------------------------------------------
+# 검증된 버전 (2026-04 기준):
+#   - redis 7.4.0    (PyPI 최신 stable, 2026-03-24)
+#                     https://pypi.org/project/redis/7.4.0/
+#                     redis-py 6.0.0+ 부터 Redis 7.2~current 지원
+#
+# 설치:
+#   python -m venv .venv
+#   source .venv/bin/activate    # macOS/Linux
+#   .venv\Scripts\activate       # Windows
+#   pip install -r requirements.txt
+#
+# 또는 uv 사용:
+#   uv venv && source .venv/bin/activate
+#   uv pip install -r requirements.txt
+# ==============================================================================
+
+# 코어 클라이언트 (hiredis 가속 포함; C 응답 파서로 파싱 속도 ↑)
+redis[hiredis]==7.4.0
+
+# 비동기 예제용 (redis-py 자체에 asyncio.Redis 포함, 별도 의존성 없음)
+# 단 일부 예제에서 asyncio 이벤트 루프 보조용으로 사용
+anyio>=4.6.0,<5.0.0
+
+# 벤치마크 / 프로파일링 보조 (선택)
+# - psutil: 메모리/CPU 측정에 사용
+# - tabulate: 결과 표 출력
+psutil>=6.0.0
+tabulate>=0.9.0
+
+# 환경 변수 로딩 (.env 지원, 학습 예제에서 host/port 분리 시 사용)
+python-dotenv>=1.0.1
